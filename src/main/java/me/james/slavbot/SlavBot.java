@@ -18,9 +18,8 @@ import sx.blah.discord.util.audio.*;
 
 public class SlavBot extends BaseBot
 {
-    public static final File ANCHOR_DIR = new File( "anchors" );
-    public static final File SOUNDS_DIR = new File( "discordsounds" );
-    public static Thread vcLeaveThrd;
+    public static final File ANCHOR_DIR = new File( "Slavbot-resources/anchors" );
+    public static final File SOUNDS_DIR = new File( "Slavbot-resources/discordsounds" );
     public static SlavBot BOT;
 
     public SlavBot()
