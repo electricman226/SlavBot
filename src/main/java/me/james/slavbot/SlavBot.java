@@ -3,6 +3,7 @@ package me.james.slavbot;
 import com.google.gson.*;
 import java.awt.image.*;
 import java.io.*;
+import java.util.*;
 import java.util.regex.*;
 import javax.imageio.*;
 import javax.sound.sampled.*;
@@ -21,6 +22,7 @@ public class SlavBot extends BaseBot
     public static final File ANCHOR_DIR = new File( "Slavbot-resources/anchors" );
     public static final File SOUNDS_DIR = new File( "Slavbot-resources/discordsounds" );
     public static SlavBot BOT;
+    public static ArrayList< Command > anchorCmds = new ArrayList<>();
 
     public SlavBot()
     {
@@ -32,34 +34,16 @@ public class SlavBot extends BaseBot
         BOT = new SlavBot();
     }
 
-    @EventSubscriber
-    public void onMessageSend( MessageSendEvent e )
+    public static void registerAnchors()
     {
-        if ( !e.getChannel().isPrivate() && SlavImageCommand.hasImage( e.getMessage() ) )
-            SlavImageCommand.lastMsgs.put( e.getChannel(), e.getMessage() );
-    }
-
-    @Override
-    @EventSubscriber
-    public void onMessage( MessageReceivedEvent e )
-    {
-        super.onMessage( e );
-        if ( SlavImageCommand.hasImage( e.getMessage() ) )
-            SlavImageCommand.lastMsgs.put( e.getChannel(), e.getMessage() );
-    }
-
-    @Override
-    public void init()
-    {
-        Command.registerClass( ".jpeg", new JPEGCommand() );
-        Command.registerClass( ".e", new EmojiCommand() );
-        Command.registerClass( ".deepfry", new DeepfryCommand() );
-
         if ( ANCHOR_DIR.exists() )
+        {
+            anchorCmds.clear();
             for ( File f : ANCHOR_DIR.listFiles( ( f ) -> f.getName().endsWith( ".json" ) ) )
             {
                 JsonObject json = fileToJSON( f );
-                Command.registerClass( "." + json.get( "command" ).getAsString(), new SlavImageCommand()
+                Command cmd;
+                Command.registerCommand( "." + json.get( "command" ).getAsString(), ( cmd = new SlavImageCommand()
                 {
                     @Override
                     public String doCommand( String[] args, IUser user, IChannel chan, IMessage msg, String imgUrl )
@@ -105,13 +89,42 @@ public class SlavBot extends BaseBot
                         }
                         return null;
                     }
-                } );
+                } ) );
+                anchorCmds.add( cmd );
             }
+        }
+    }
+
+    @EventSubscriber
+    public void onMessageSend( MessageSendEvent e )
+    {
+        if ( !e.getChannel().isPrivate() && SlavImageCommand.hasImage( e.getMessage() ) )
+            SlavImageCommand.lastMsgs.put( e.getChannel(), e.getMessage() );
+    }
+
+    @Override
+    @EventSubscriber
+    public void onMessage( MessageReceivedEvent e )
+    {
+        super.onMessage( e );
+        if ( SlavImageCommand.hasImage( e.getMessage() ) )
+            SlavImageCommand.lastMsgs.put( e.getChannel(), e.getMessage() );
+    }
+
+    @Override
+    public void init()
+    {
+        Command.registerCommand( ".jpeg", new JPEGCommand() );
+        Command.registerCommand( ".e", new EmojiCommand() );
+        Command.registerCommand( ".deepfry", new DeepfryCommand() );
+        Command.registerCommand( ".reloadanchors", new ReloadAnchorsCommand() );
+
+        registerAnchors();
 
         if ( SOUNDS_DIR.exists() )
             for ( File f : SOUNDS_DIR.listFiles( ( f ) -> f.getName().endsWith( ".wav" ) || f.getName().endsWith( ".mp3" ) ) )
             {
-                Command.registerClass( "." + f.getName().split( Pattern.quote( "." ) )[0], new Command()
+                Command.registerCommand( "." + f.getName().split( Pattern.quote( "." ) )[0], new Command()
                 {
                     @Override
                     public String doCommand( String[] args, IUser user, IChannel chan, IMessage msg )
