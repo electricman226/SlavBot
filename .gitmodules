@@ -1,3 +1,4 @@
 [submodule "Slavbot-resources"]
 	path = Slavbot-resources
 	url = https://github.com/electricman226/Slavbot-resources
+    branch = master
