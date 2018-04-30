@@ -1,5 +1,6 @@
 package me.james.slavbot.commands;
 
+import java.awt.*;
 import java.awt.image.*;
 import java.io.*;
 import javax.imageio.*;
@@ -24,7 +25,11 @@ public class JPEGCommand extends SlavImageCommand
         try
         {
             ImageWriter writer = ImageIO.getImageWritersByFormatName( "jpg" ).next();
-            BufferedImage img = getImageFromUrl( imgUrl );
+            BufferedImage preImg = getImageFromUrl( imgUrl );
+            BufferedImage img = new BufferedImage( preImg.getWidth(), preImg.getHeight(), BufferedImage.TYPE_3BYTE_BGR );
+            Graphics2D g = img.createGraphics();
+            g.drawImage( preImg, 0, 0, null );
+            g.dispose();
             final File f = File.createTempFile( "sb_msg_" + msg.getStringID(), "_img." + getExtension( imgUrl ) );
             f.deleteOnExit();
             writer.setOutput( new FileImageOutputStream( f ) );
