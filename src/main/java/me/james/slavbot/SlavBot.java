@@ -23,6 +23,7 @@ public class SlavBot extends BaseBot
     public static final File SOUNDS_DIR = new File( "Slavbot-resources/discordsounds" );
     public static SlavBot BOT;
     public static ArrayList< Command > anchorCmds = new ArrayList<>();
+    public static ArrayList< String > soundList = new ArrayList<>();
 
     public SlavBot()
     {
@@ -95,36 +96,15 @@ public class SlavBot extends BaseBot
         }
     }
 
-    @EventSubscriber
-    public void onMessageSend( MessageSendEvent e )
+    public static void registerSounds()
     {
-        if ( !e.getChannel().isPrivate() && SlavImageCommand.hasImage( e.getMessage() ) )
-            SlavImageCommand.lastMsgs.put( e.getChannel(), e.getMessage() );
-    }
-
-    @Override
-    @EventSubscriber
-    public void onMessage( MessageReceivedEvent e )
-    {
-        super.onMessage( e );
-        if ( SlavImageCommand.hasImage( e.getMessage() ) )
-            SlavImageCommand.lastMsgs.put( e.getChannel(), e.getMessage() );
-    }
-
-    @Override
-    public void init()
-    {
-        Command.registerCommand( ".jpeg", new JPEGCommand() );
-        Command.registerCommand( ".e", new EmojiCommand() );
-        Command.registerCommand( ".deepfry", new DeepfryCommand() );
-        Command.registerCommand( ".reloadanchors", new ReloadAnchorsCommand() );
-
-        registerAnchors();
-
         if ( SOUNDS_DIR.exists() )
+        {
+            soundList.clear();
             for ( File f : SOUNDS_DIR.listFiles( ( f ) -> f.getName().endsWith( ".wav" ) || f.getName().endsWith( ".mp3" ) ) )
             {
-                Command.registerCommand( "." + f.getName().split( Pattern.quote( "." ) )[0], new Command()
+                String cmd = "." + f.getName().split( Pattern.quote( "." ) )[0];
+                Command.registerCommand( cmd, new Command()
                 {
                     @Override
                     public String doCommand( String[] args, IUser user, IChannel chan, IMessage msg )
@@ -149,6 +129,37 @@ public class SlavBot extends BaseBot
                         return null;
                     }
                 } );
+                soundList.add( cmd );
             }
+        }
+    }
+
+    @EventSubscriber
+    public void onMessageSend( MessageSendEvent e )
+    {
+        if ( !e.getChannel().isPrivate() && SlavImageCommand.hasImage( e.getMessage() ) )
+            SlavImageCommand.lastMsgs.put( e.getChannel(), e.getMessage() );
+    }
+
+    @Override
+    @EventSubscriber
+    public void onMessage( MessageReceivedEvent e )
+    {
+        super.onMessage( e );
+        if ( SlavImageCommand.hasImage( e.getMessage() ) )
+            SlavImageCommand.lastMsgs.put( e.getChannel(), e.getMessage() );
+    }
+
+    @Override
+    public void init()
+    {
+        Command.registerCommand( ".jpeg", new JPEGCommand() );
+        Command.registerCommand( ".e", new EmojiCommand() );
+        Command.registerCommand( ".deepfry", new DeepfryCommand() );
+        Command.registerCommand( ".reloadanchors", new ReloadAnchorsCommand() );
+        Command.registerCommand( ".sounds", new ListSoundsCommand() );
+
+        registerAnchors();
+        registerSounds();
     }
 }
