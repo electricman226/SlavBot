@@ -1,4 +1,4 @@
-package me.james.slavbot;
+package me.james.slavbot.commands;
 
 import me.james.basebot.command.*;
 import sx.blah.discord.handle.obj.*;
