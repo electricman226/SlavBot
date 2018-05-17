@@ -9,8 +9,10 @@ import javax.imageio.*;
 import javax.sound.sampled.*;
 import me.james.basebot.*;
 import me.james.basebot.command.*;
+import me.james.discord4click.*;
 import me.james.slavbot.commands.*;
 import org.imgscalr.*;
+import sun.plugin.dom.exception.*;
 import sx.blah.discord.api.events.*;
 import sx.blah.discord.handle.impl.events.guild.channel.message.*;
 import sx.blah.discord.handle.obj.*;
@@ -134,6 +136,34 @@ public class SlavBot extends BaseBot
         }
     }
 
+    public static void createViewer( ImageURL[] imgs, IChannel chan )
+    {
+        if ( imgs.length == 0 )
+            throw new InvalidStateException( "No image URLs supplied for viewer!" );
+        IMessage msg = chan.sendMessage( imgs[0].url + "\n" + Arrays.toString( imgs[0].tags ) );
+        int[] ind = new int[1]; // uhhh.
+        Discord4Click.addClickEvent( msg, "\u25C0", user -> {
+            if ( ind[0] == 0 )
+                return null;
+            ind[0] = ind[0] - 1;
+            RequestBuffer.request( () -> msg.edit( imgs[ind[0]].url + "\n" + Arrays.toString( imgs[ind[0]].tags ) ) );
+            return null;
+        }, true );
+
+        Discord4Click.addClickEvent( msg, "\u25B6", user -> {
+            if ( ind[0] >= imgs.length - 1 )
+                return null;
+            ind[0] = ind[0] + 1;
+            RequestBuffer.request( () -> msg.edit( imgs[ind[0]].url + "\n" + Arrays.toString( imgs[ind[0]].tags ) ) );
+            return null;
+        }, true );
+
+        Discord4Click.addClickEvent( msg, "\u23F9", user -> {
+            RequestBuffer.request( msg::delete );
+            return null;
+        } );
+    }
+
     @EventSubscriber
     public void onMessageSend( MessageSendEvent e )
     {
@@ -153,11 +183,14 @@ public class SlavBot extends BaseBot
     @Override
     public void init()
     {
+        getBot().getDispatcher().registerListener( new Discord4Click() );
+        Discord4Click.init();
         Command.registerCommand( ".jpeg", new JPEGCommand() );
         Command.registerCommand( ".e", new EmojiCommand() );
         Command.registerCommand( ".deepfry", new DeepfryCommand() );
         Command.registerCommand( ".reloadanchors", new ReloadAnchorsCommand() );
         Command.registerCommand( ".sounds", new ListSoundsCommand() );
+        Command.registerCommand( ".r34", new R34Command() );
 
         registerAnchors();
         registerSounds();
