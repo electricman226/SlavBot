@@ -12,7 +12,6 @@ import me.james.basebot.command.*;
 import me.james.discord4click.*;
 import me.james.slavbot.commands.*;
 import org.imgscalr.*;
-import sun.plugin.dom.exception.*;
 import sx.blah.discord.api.events.*;
 import sx.blah.discord.handle.impl.events.guild.channel.message.*;
 import sx.blah.discord.handle.obj.*;
@@ -139,7 +138,7 @@ public class SlavBot extends BaseBot
     public static void createViewer( ImageURL[] imgs, IChannel chan )
     {
         if ( imgs.length == 0 )
-            throw new InvalidStateException( "No image URLs supplied for viewer!" );
+            throw new IllegalStateException( "No image URLs supplied for viewer!" );
         IMessage msg = chan.sendMessage( imgs[0].url + "\n" + Arrays.toString( imgs[0].tags ) );
         int[] ind = new int[1]; // uhhh.
         Discord4Click.addClickEvent( msg, "\u25C0", user -> {
