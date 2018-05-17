@@ -42,7 +42,7 @@ public class R34Command extends Command
         }
 
         CloseableHttpClient client = HttpClientBuilder.create().build();
-        HttpGet r34 = new HttpGet( String.format( "https://rule34.xxx/index.php?page=dapi&s=post&q=index&tags=%s&limit=200", parseTags( tags.toArray( new String[0] ) ) ) );
+        HttpGet r34 = new HttpGet( String.format( "https://rule34.xxx/index.php?page=dapi&s=post&q=index&tags=%s&limit=200", parseTags( tags.toArray( new String[0] ) ) ).replace( ' ', '+' ) );
         try
         {
             HttpResponse resp = client.execute( r34 );
