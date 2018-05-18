@@ -171,15 +171,6 @@ public class SlavBot extends BaseBot
     }
 
     @Override
-    @EventSubscriber
-    public void onMessage( MessageReceivedEvent e )
-    {
-        super.onMessage( e );
-        if ( SlavImageCommand.hasImage( e.getMessage() ) )
-            SlavImageCommand.lastMsgs.put( e.getChannel(), e.getMessage() );
-    }
-
-    @Override
     public void init()
     {
         getBot().getDispatcher().registerListener( new Discord4Click() );
