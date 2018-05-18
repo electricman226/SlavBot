@@ -168,7 +168,6 @@ public class SlavBot extends BaseBot
     {
         if ( e instanceof MessageSendEvent || e instanceof MessageReceivedEvent )
         {
-            System.out.println( "yeet" );
             if ( !e.getChannel().isPrivate() && SlavImageCommand.hasImage( e.getMessage() ) )
                 SlavImageCommand.lastMsgs.put( e.getChannel(), e.getMessage() );
         }
