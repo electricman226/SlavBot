@@ -12,6 +12,7 @@ import org.apache.http.impl.client.*;
 import org.jsoup.*;
 import org.jsoup.nodes.*;
 import sx.blah.discord.handle.obj.*;
+import sx.blah.discord.util.*;
 
 public class R34Command extends Command
 {
@@ -61,13 +62,17 @@ public class R34Command extends Command
                     continue;
                 urls.add( new ImageURL( post.attr( "file_url" ), post.attr( "tags" ).split( " " ) ) );
             }
+            if ( urls.size() <= 0 )
+            {
+                RequestBuffer.request( () -> chan.sendMessage( "No images with this tag found." ) );
+                return "Tag not found.";
+            }
             SlavBot.createViewer( urls.toArray( new ImageURL[0] ), chan );
         } catch ( IOException e )
         {
             SlavImageCommand.reportException( chan, e );
             e.printStackTrace();
         }
-
-        return null;
+        return "Success, found " + urls.size() + " images, with the tags " + tags.toString() + ", and without the tags " + notTags.toString();
     }
 }
