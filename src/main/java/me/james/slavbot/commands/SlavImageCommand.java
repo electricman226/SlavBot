@@ -13,7 +13,6 @@ import sx.blah.discord.handle.obj.*;
 public abstract class SlavImageCommand extends Command
 {
     public static final List< String > VALID_EXTS = Arrays.asList( "png", "jpg", "jpeg", "bmp" );
-    public static final int MSG_HISTORY_FARTHEST = 15;
     public static HashMap< IChannel, IMessage > lastMsgs = new HashMap<>();
 
     public static void reportException( IChannel chan, Exception e )
@@ -56,7 +55,7 @@ public abstract class SlavImageCommand extends Command
     @Override
     public String doCommand( String[] args, IUser user, IChannel chan, IMessage msg )
     {
-        IMessage prevMsg = ( !lastMsgs.containsKey( chan ) ? getLastImageMessage( chan ) : lastMsgs.get( chan ) ); // IChannel#getFullMessageHistory is expensive as FUCK. Simply cache the messages.
+        IMessage prevMsg = lastMsgs.get( chan );
         if ( prevMsg == null )
             return "Previous message is NULL.";
         for ( IEmbed em : prevMsg.getEmbeds() )
@@ -68,18 +67,6 @@ public abstract class SlavImageCommand extends Command
             String[] parts = attch.getFilename().split( Pattern.quote( "." ) );
             if ( attch.getFilename().contains( "." ) && parts.length > 0 && VALID_EXTS.contains( parts[parts.length - 1] ) )
                 return doCommand( args, user, chan, msg, attch.getUrl() );
-        }
-        return null;
-    }
-
-    public IMessage getLastImageMessage( IChannel chan )
-    {
-        int totalMsgs = chan.getFullMessageHistory().size();
-        for ( int i = 0; i < MSG_HISTORY_FARTHEST && i <= totalMsgs; i++ )
-        {
-            IMessage msg = chan.getFullMessageHistory().get( i );
-            if ( hasImage( msg ) )
-                return msg;
         }
         return null;
     }
