@@ -14,6 +14,7 @@ import me.james.slavbot.commands.*;
 import org.imgscalr.*;
 import sx.blah.discord.api.events.*;
 import sx.blah.discord.handle.impl.events.guild.channel.message.*;
+import sx.blah.discord.handle.impl.events.guild.member.*;
 import sx.blah.discord.handle.obj.*;
 import sx.blah.discord.util.*;
 import sx.blah.discord.util.audio.*;
@@ -161,6 +162,19 @@ public class SlavBot extends BaseBot
             RequestBuffer.request( msg::delete );
             return null;
         } );
+    }
+
+    @EventSubscriber
+    public void onUserGuildJoin( UserJoinEvent e )
+    {
+        JsonObject config;
+        if ( ( config = getConfig( e.getGuild() ) ) != null && config.has( "defaultRole" ) )
+        {
+            ArrayList< IRole > roles = new ArrayList<>();
+            for ( JsonElement elem : config.getAsJsonArray( "defaultRole" ) )
+                roles.add( e.getGuild().getRoleByID( elem.getAsLong() ) );
+            e.getGuild().editUserRoles( e.getUser(), roles.toArray( new IRole[0] ) );
+        }
     }
 
     @EventSubscriber
