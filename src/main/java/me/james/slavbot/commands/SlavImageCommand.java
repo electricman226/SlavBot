@@ -13,6 +13,7 @@ import sx.blah.discord.handle.obj.*;
 public abstract class SlavImageCommand extends Command
 {
     public static final List< String > VALID_EXTS = Arrays.asList( "png", "jpg", "jpeg", "bmp" );
+    public static final String URL_REGEX = "((https?|ftp|gopher|telnet|file):((//)|(\\\\))+[\\w\\d:#@%/;$()~_?\\+-=\\\\\\.&]*)";
     public static HashMap< IChannel, IMessage > lastMsgs = new HashMap<>();
 
     public static void reportException( IChannel chan, Exception e )
@@ -40,9 +41,9 @@ public abstract class SlavImageCommand extends Command
 
     public static boolean hasImage( IMessage msg )
     {
-        for ( IEmbed em : msg.getEmbeds() )
-            if ( em.getType().equals( "image" ) )
-                return true;
+        List< String > urls = extractUrls( msg.getContent() );
+        if ( urls.size() >= 1 )
+            return true;
         for ( IMessage.Attachment attch : msg.getAttachments() )
         {
             String[] parts = attch.getFilename().split( Pattern.quote( "." ) );
@@ -52,22 +53,35 @@ public abstract class SlavImageCommand extends Command
         return false;
     }
 
+    public static List< String > extractUrls( String text )
+    {
+        List< String > containedUrls = new ArrayList<>();
+        Pattern pattern = Pattern.compile( URL_REGEX, Pattern.CASE_INSENSITIVE );
+        Matcher urlMatcher = pattern.matcher( text );
+
+        while ( urlMatcher.find() )
+            containedUrls.add( text.substring( urlMatcher.start( 0 ), urlMatcher.end( 0 ) ) );
+
+        return containedUrls;
+    }
+
     @Override
     public String doCommand( String[] args, IUser user, IChannel chan, IMessage msg )
     {
         IMessage prevMsg = lastMsgs.get( chan );
         if ( prevMsg == null )
             return "Previous message is NULL.";
-        for ( IEmbed em : prevMsg.getEmbeds() )
-            if ( em.getType().equals( "image" ) )
-                return doCommand( args, user, chan, msg, em.getUrl() );
-
         for ( IMessage.Attachment attch : prevMsg.getAttachments() )
         {
             String[] parts = attch.getFilename().split( Pattern.quote( "." ) );
             if ( attch.getFilename().contains( "." ) && parts.length > 0 && VALID_EXTS.contains( parts[parts.length - 1] ) )
                 return doCommand( args, user, chan, msg, attch.getUrl() );
         }
+
+        List< String > urls = extractUrls( prevMsg.getContent() );
+        if ( urls.size() >= 1 )
+            return doCommand( args, user, chan, msg, urls.get( 0 ) );
+
         return null;
     }
 
