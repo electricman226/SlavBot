@@ -33,7 +33,6 @@ public class RandomRedditCommand extends Command
             HttpClient client = HttpClients.custom().setUserAgent( "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:15.0) Gecko/20100101 Firefox/15.0.1" ).build();
             HttpResponse resp = client.execute( req );
             String subJson = IOUtils.toString( resp.getEntity().getContent(), "UTF-8" );
-            System.out.println( subJson );
             JsonObject json = new JsonParser().parse( subJson ).getAsJsonObject();
             JsonArray posts = json.get( "data" ).getAsJsonObject().get( "children" ).getAsJsonArray();
             if ( posts.size() <= 0 )
@@ -44,7 +43,6 @@ public class RandomRedditCommand extends Command
                 return "Invalid subreddit";
             }
             JsonObject[] validPosts = getImagePosts( posts );
-            System.out.println( validPosts.length );
             if ( validPosts.length == 0 )
             {
                 RequestBuffer.request( () -> {

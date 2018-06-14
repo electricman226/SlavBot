@@ -198,6 +198,7 @@ public class SlavBot extends BaseBot
         Command.registerCommand( ".reloadanchors", new ReloadAnchorsCommand() );
         Command.registerCommand( ".sounds", new ListSoundsCommand() );
         Command.registerCommand( ".r34", new R34Command() );
+        Command.registerCommand( ".clearsnd", new ClearSoundQueueCommand() );
         Command.registerCommand( ".?", new RandomRedditCommand() );
 
         registerAnchors();
