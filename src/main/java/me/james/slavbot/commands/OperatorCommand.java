@@ -11,7 +11,7 @@ public abstract class OperatorCommand extends Command
     {
         if ( !SlavBot.BOT.getConfig( chan.getGuild() ).has( "operatorChannel" ) || chan.getLongID() != SlavBot.BOT.getConfig( chan.getGuild() ).get( "operatorChannel" ).getAsLong() )
             return "Not an operator channel.";
-        if ( !SlavBot.BOT.getConfig( chan.getGuild() ).has( "operators" ) )
+        if ( !SlavBot.BOT.getConfig( chan.getGuild() ).has( "operatorRole" ) )
             return "No operator role? (is null)";
         long operatorRoleId = SlavBot.BOT.getConfig( chan.getGuild() ).get( "operatorRole" ).getAsLong();
 
