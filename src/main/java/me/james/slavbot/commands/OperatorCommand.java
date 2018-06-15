@@ -13,6 +13,8 @@ public abstract class OperatorCommand extends Command
     {
         if ( !SlavBot.BOT.getConfig( chan.getGuild() ).has( "operatorChannel" ) || chan.getLongID() != SlavBot.BOT.getConfig( chan.getGuild() ).get( "operatorChannel" ).getAsLong() )
             return "Not an operator channel.";
+        if ( !SlavBot.BOT.getConfig( chan.getGuild() ).has( "operators" ) )
+            return "No operators? (jarray is null)";
         JsonArray operators = SlavBot.BOT.getConfig( chan.getGuild() ).get( "operators" ).getAsJsonArray();
         if ( operators.size() <= 0 )
             return "No operators? (len is 0)";
