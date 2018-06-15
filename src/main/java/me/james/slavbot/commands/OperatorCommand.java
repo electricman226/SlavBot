@@ -1,7 +1,5 @@
 package me.james.slavbot.commands;
 
-import com.google.gson.*;
-import java.util.*;
 import me.james.basebot.command.*;
 import me.james.slavbot.*;
 import sx.blah.discord.handle.obj.*;
@@ -14,15 +12,11 @@ public abstract class OperatorCommand extends Command
         if ( !SlavBot.BOT.getConfig( chan.getGuild() ).has( "operatorChannel" ) || chan.getLongID() != SlavBot.BOT.getConfig( chan.getGuild() ).get( "operatorChannel" ).getAsLong() )
             return "Not an operator channel.";
         if ( !SlavBot.BOT.getConfig( chan.getGuild() ).has( "operators" ) )
-            return "No operators? (jarray is null)";
-        JsonArray operators = SlavBot.BOT.getConfig( chan.getGuild() ).get( "operators" ).getAsJsonArray();
-        if ( operators.size() <= 0 )
-            return "No operators? (len is 0)";
-        List< IRole > roles = user.getRolesForGuild( chan.getGuild() );
+            return "No operator role? (is null)";
+        long operatorRoleId = SlavBot.BOT.getConfig( chan.getGuild() ).get( "operatorRole" ).getAsLong();
 
-        for ( JsonElement elem : operators )
-            if ( roles.stream().anyMatch( role -> role.getLongID() == elem.getAsLong() ) )
-                return doOperatorCommand( args, user, chan, msg );
+        if ( user.getRolesForGuild( chan.getGuild() ).stream().anyMatch( role -> role.getLongID() == operatorRoleId ) )
+            return doOperatorCommand( args, user, chan, msg );
 
         return "User was not an operator.";
     }
