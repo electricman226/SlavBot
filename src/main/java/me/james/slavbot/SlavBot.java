@@ -11,6 +11,7 @@ import me.james.basebot.*;
 import me.james.basebot.command.*;
 import me.james.discord4click.*;
 import me.james.slavbot.commands.*;
+import me.james.slavbot.commands.operator.*;
 import org.imgscalr.*;
 import sx.blah.discord.api.events.*;
 import sx.blah.discord.handle.impl.events.guild.channel.message.*;
@@ -198,6 +199,7 @@ public class SlavBot extends BaseBot
         Command.registerCommand( ".r34", new R34Command() );
         Command.registerCommand( ".clearsnd", new ClearSoundQueueCommand() );
         Command.registerCommand( ".?", new RandomRedditCommand() );
+        Command.registerCommand( ".muteall", new MuteAllCommand() );
 
         registerAnchors();
         registerSounds();
