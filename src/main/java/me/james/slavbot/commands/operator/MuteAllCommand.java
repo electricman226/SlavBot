@@ -20,6 +20,6 @@ public class MuteAllCommand extends OperatorCommand
             if ( chanUser != user && chanUser != SlavBot.BOT.getBot().getApplicationOwner() )
                 chan.getGuild().setMuteUser( chanUser, muteStatus );
         mutedServers.put( chan.getGuild(), muteStatus );
-        return "Toggled channel mute. (" + muteStatus + ")";
+        return "Toggled voice mute. (" + muteStatus + ")";
     }
 }

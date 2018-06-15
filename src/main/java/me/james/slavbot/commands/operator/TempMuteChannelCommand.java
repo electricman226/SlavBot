@@ -56,7 +56,7 @@ public class TempMuteChannelCommand extends OperatorCommand
         IRole operator = getOperatorRole( targetChan.getGuild() );
         if ( chanMuteStatus )
         {
-            targetChan.overrideRolePermissions( everyone, EnumSet.of( Permissions.READ_MESSAGES, Permissions.READ_MESSAGE_HISTORY, Permissions.ADD_REACTIONS ), EnumSet.of( Permissions.SEND_MESSAGES ) );
+            targetChan.overrideRolePermissions( everyone, null, EnumSet.of( Permissions.SEND_MESSAGES ) );
             targetChan.overrideRolePermissions( operator, EnumSet.of( Permissions.READ_MESSAGES, Permissions.READ_MESSAGE_HISTORY, Permissions.ADD_REACTIONS, Permissions.SEND_MESSAGES ), null );
         }
         else
@@ -64,6 +64,6 @@ public class TempMuteChannelCommand extends OperatorCommand
             targetChan.removePermissionsOverride( everyone );
         }
         mutedChannel.put( targetChan, chanMuteStatus );
-        return null;
+        return "Toggled channel mute. (" + chanMuteStatus + ")";
     }
 }
