@@ -39,13 +39,15 @@ public class DeepfryCommand extends SlavImageCommand
                 try
                 {
                     chan.sendFile( f );
-                } catch ( FileNotFoundException e )
+                }
+                catch ( FileNotFoundException e )
                 {
                     reportException( chan, e );
                     e.printStackTrace();
                 }
             } );
-        } catch ( IOException e )
+        }
+        catch ( IOException e )
         {
             reportException( chan, e );
             e.printStackTrace();

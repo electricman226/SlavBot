@@ -68,7 +68,8 @@ public class R34Command extends Command
                 return "Tag not found.";
             }
             SlavBot.createViewer( urls.toArray( new ImageURL[0] ), chan );
-        } catch ( IOException e )
+        }
+        catch ( IOException e )
         {
             SlavImageCommand.reportException( chan, e );
             e.printStackTrace();

@@ -79,14 +79,16 @@ public class SlavBot extends BaseBot
                                     try
                                     {
                                         chan.sendFile( out );
-                                    } catch ( FileNotFoundException e )
+                                    }
+                                    catch ( FileNotFoundException e )
                                     {
                                         reportException( chan, e );
                                         e.printStackTrace();
                                     }
                                 } );
                             }
-                        } catch ( IOException e )
+                        }
+                        catch ( IOException e )
                         {
                             reportException( chan, e );
                             e.printStackTrace();
@@ -124,7 +126,8 @@ public class SlavBot extends BaseBot
                         try
                         {
                             player.queue( f );
-                        } catch ( IOException | UnsupportedAudioFileException e )
+                        }
+                        catch ( IOException | UnsupportedAudioFileException e )
                         {
                             e.printStackTrace();
                         }

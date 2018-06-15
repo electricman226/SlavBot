@@ -20,7 +20,8 @@ public class JPEGCommand extends SlavImageCommand
             try
             {
                 compression = Math.min( Math.max( 0.0f, Float.parseFloat( args[1] ) ), 1.0f );
-            } catch ( NumberFormatException e ) {}
+            }
+            catch ( NumberFormatException e ) {}
         }
         try
         {
@@ -41,13 +42,15 @@ public class JPEGCommand extends SlavImageCommand
                 try
                 {
                     chan.sendFile( f );
-                } catch ( FileNotFoundException e )
+                }
+                catch ( FileNotFoundException e )
                 {
                     reportException( chan, e );
                     e.printStackTrace();
                 }
             } );
-        } catch ( IOException e )
+        }
+        catch ( IOException e )
         {
             reportException( chan, e );
             e.printStackTrace();

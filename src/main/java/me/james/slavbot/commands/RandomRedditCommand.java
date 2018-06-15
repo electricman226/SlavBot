@@ -54,7 +54,8 @@ public class RandomRedditCommand extends Command
             RequestBuffer.request( () -> {
                 chan.sendMessage( "`" + post.get( "title" ).getAsString() + "`: " + post.get( "url" ).getAsString() );
             } );
-        } catch ( IOException e )
+        }
+        catch ( IOException e )
         {
             e.printStackTrace();
         }
