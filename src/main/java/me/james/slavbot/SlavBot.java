@@ -112,7 +112,7 @@ public class SlavBot extends BaseBot
                     public String doCommand( String[] args, IUser user, IChannel chan, IMessage msg )
                     {
                         JsonObject config = BOT.getConfig( chan.getGuild() );
-                        if ( !config.has( "soundsChannel" ) || !( chan.getStringID().equals( config.get( "soundsChannel" ).getAsString() ) ) )
+                        if ( !config.has( "soundsChannel" ) || !( chan.getLongID() == config.get( "soundsChannel" ).getAsLong() ) )
                             return "No valid channel.";
 
                         if ( user.getVoiceStateForGuild( chan.getGuild() ).getChannel() == null )
