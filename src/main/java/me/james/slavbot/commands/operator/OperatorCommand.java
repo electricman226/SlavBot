@@ -1,4 +1,4 @@
-package me.james.slavbot.commands;
+package me.james.slavbot.commands.operator;
 
 import me.james.basebot.command.*;
 import me.james.slavbot.*;

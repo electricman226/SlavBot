@@ -2,7 +2,6 @@ package me.james.slavbot.commands.operator;
 
 import java.util.*;
 import me.james.slavbot.*;
-import me.james.slavbot.commands.*;
 import sx.blah.discord.handle.obj.*;
 import sx.blah.discord.util.*;
 
