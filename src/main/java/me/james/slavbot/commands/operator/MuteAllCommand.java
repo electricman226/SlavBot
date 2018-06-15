@@ -3,6 +3,7 @@ package me.james.slavbot.commands.operator;
 import java.util.*;
 import me.james.slavbot.*;
 import sx.blah.discord.handle.obj.*;
+import sx.blah.discord.util.*;
 
 public class MuteAllCommand extends OperatorCommand
 {
@@ -17,7 +18,7 @@ public class MuteAllCommand extends OperatorCommand
         boolean muteStatus = !mutedServers.getOrDefault( chan.getGuild(), false );
         for ( IUser chanUser : vc.getConnectedUsers() )
             if ( chanUser != user && chanUser != SlavBot.BOT.getBot().getApplicationOwner() )
-                chan.getGuild().setMuteUser( chanUser, muteStatus );
+                RequestBuffer.request( () -> chan.getGuild().setMuteUser( chanUser, muteStatus ) );
         mutedServers.put( chan.getGuild(), muteStatus );
         return "Toggled voice mute. (" + muteStatus + ")";
     }
