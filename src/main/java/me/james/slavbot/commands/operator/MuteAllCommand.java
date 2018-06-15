@@ -13,7 +13,7 @@ public class MuteAllCommand extends OperatorCommand
     public String doOperatorCommand( String[] args, IUser user, IChannel chan, IMessage msg )
     {
         IVoiceChannel vc;
-        if ( ( vc = user.getVoiceStateForGuild( chan.getGuild() ).getChannel() ) != null )
+        if ( ( vc = user.getVoiceStateForGuild( chan.getGuild() ).getChannel() ) == null )
             return null;
         boolean muteStatus = !mutedServers.getOrDefault( chan.getGuild(), false );
         for ( IUser chanUser : vc.getConnectedUsers() )
