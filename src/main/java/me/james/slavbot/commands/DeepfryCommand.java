@@ -17,7 +17,7 @@ public class DeepfryCommand extends SlavImageCommand
         {
             Color c = new Color( (int) pixels[i] );
             float[] hsb = Color.RGBtoHSB( c.getRed(), c.getGreen(), c.getBlue(), null );
-            hsb[1] *= 0.35f;
+            hsb[1] *= 0.4f;
 
             pixels[i] = (byte) Color.getHSBColor( hsb[0], hsb[1], hsb[2] ).getRGB();
         }
