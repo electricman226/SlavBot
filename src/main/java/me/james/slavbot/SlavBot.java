@@ -203,6 +203,7 @@ public class SlavBot extends BaseBot
         Command.registerCommand( ".clearsnd", new ClearSoundQueueCommand() );
         Command.registerCommand( ".?", new RandomRedditCommand() );
         Command.registerCommand( ".muteall", new MuteAllCommand() );
+        Command.registerCommand( ".deafenall", new DeafenAllCommand() );
         Command.registerCommand( ".mutechan", new TempMuteChannelCommand() );
 
         registerAnchors();
