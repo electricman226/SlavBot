@@ -16,6 +16,8 @@ import org.imgscalr.*;
 import sx.blah.discord.api.events.*;
 import sx.blah.discord.handle.impl.events.guild.channel.message.*;
 import sx.blah.discord.handle.impl.events.guild.member.*;
+import sx.blah.discord.handle.impl.events.guild.voice.*;
+import sx.blah.discord.handle.impl.events.guild.voice.user.*;
 import sx.blah.discord.handle.obj.*;
 import sx.blah.discord.util.*;
 import sx.blah.discord.util.audio.*;
@@ -178,6 +180,37 @@ public class SlavBot extends BaseBot
             for ( JsonElement elem : config.getAsJsonArray( "defaultRole" ) )
                 roles.add( e.getGuild().getRoleByID( elem.getAsLong() ) );
             e.getGuild().editUserRoles( e.getUser(), roles.toArray( new IRole[0] ) );
+        }
+    }
+
+    @EventSubscriber
+    public void onUserJoinVoice( VoiceChannelEvent e )
+    {
+        IVoiceChannel ourChan = e.getClient().getOurUser().getVoiceStateForGuild( e.getGuild() ).getChannel();
+        if ( ourChan == null )
+            return;
+        if ( ( e instanceof UserVoiceChannelJoinEvent || e instanceof UserVoiceChannelMoveEvent ) && e.getVoiceChannel() == ourChan )
+        {
+            IUser user;
+            if ( e instanceof UserVoiceChannelJoinEvent )
+                user = ( (UserVoiceChannelJoinEvent) e ).getUser();
+            else
+                user = ( (UserVoiceChannelMoveEvent) e ).getUser();
+            if ( user == e.getClient().getOurUser() )
+                return;
+            if ( !getConfig( e.getGuild() ).has( "joinSound" ) )
+                return;
+            File sound = new File( getConfig( e.getGuild() ).get( "joinSound" ).getAsString() );
+            if ( !sound.exists() )
+                return;
+            try
+            {
+                AudioPlayer.getAudioPlayerForGuild( e.getGuild() ).queue( sound );
+            }
+            catch ( IOException | UnsupportedAudioFileException e1 )
+            {
+                e1.printStackTrace();
+            }
         }
     }
 
