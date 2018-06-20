@@ -17,7 +17,7 @@ public class DeafenAllCommand extends OperatorCommand
             return null;
         boolean muteStatus = !deafenServer.getOrDefault( chan.getGuild(), false );
         for ( IUser chanUser : vc.getConnectedUsers() )
-            if ( chanUser != user && chanUser != SlavBot.BOT.getBot().getApplicationOwner() && user.getLongID() != vc.getGuild().getOwnerLongID() )
+            if ( chanUser != user && chanUser != SlavBot.BOT.getBot().getApplicationOwner() && chanUser.getLongID() != vc.getGuild().getOwnerLongID() )
                 RequestBuffer.request( () -> chan.getGuild().setDeafenUser( chanUser, muteStatus ) );
         deafenServer.put( chan.getGuild(), muteStatus );
         return "Toggled voice deaf. (" + muteStatus + ")";
