@@ -186,6 +186,10 @@ public class SlavBot extends BaseBot
     @EventSubscriber
     public void onUserJoinVoice( VoiceChannelEvent e )
     {
+        JsonObject conf = getConfig( e.getGuild() );
+        if ( !conf.has( "joinSound" ) || !conf.has( "joinSoundDelay" ) )
+            return;
+        long delay = conf.get( "joinSoundDelay" ).getAsLong();
         IVoiceChannel ourChan = e.getClient().getOurUser().getVoiceStateForGuild( e.getGuild() ).getChannel();
         if ( ourChan == null )
             return;
@@ -198,19 +202,20 @@ public class SlavBot extends BaseBot
                 user = ( (UserVoiceChannelMoveEvent) e ).getUser();
             if ( user == e.getClient().getOurUser() )
                 return;
-            if ( !getConfig( e.getGuild() ).has( "joinSound" ) )
-                return;
-            File sound = new File( getConfig( e.getGuild() ).get( "joinSound" ).getAsString() );
+            File sound = new File( conf.get( "joinSound" ).getAsString() );
             if ( !sound.exists() )
                 return;
-            try
-            {
-                AudioPlayer.getAudioPlayerForGuild( e.getGuild() ).queue( sound );
-            }
-            catch ( IOException | UnsupportedAudioFileException e1 )
-            {
-                e1.printStackTrace();
-            }
+            new Thread( () -> {
+                try
+                {
+                    Thread.sleep( delay );
+                    AudioPlayer.getAudioPlayerForGuild( e.getGuild() ).queue( sound );
+                }
+                catch ( InterruptedException | UnsupportedAudioFileException | IOException e1 )
+                {
+                    e1.printStackTrace();
+                }
+            } );
         }
     }
 
