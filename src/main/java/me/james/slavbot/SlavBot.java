@@ -215,7 +215,7 @@ public class SlavBot extends BaseBot
                 {
                     e1.printStackTrace();
                 }
-            } );
+            } ).start();
         }
     }
 
