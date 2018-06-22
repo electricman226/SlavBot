@@ -185,36 +185,57 @@ public class SlavBot extends BaseBot
     }
 
     @EventSubscriber
-    public void onUserJoinVoice( VoiceChannelEvent e )
+    public void onVoiceEvent( VoiceChannelEvent e )
     {
-        JsonObject conf = getConfig( e.getGuild() );
-        if ( !conf.has( "joinSound" ) || !conf.has( "joinSoundDelay" ) )
-            return;
-        File sound = new File( conf.get( "joinSound" ).getAsString() );
-        long delay = conf.get( "joinSoundDelay" ).getAsLong();
         IVoiceChannel ourChan = e.getClient().getOurUser().getVoiceStateForGuild( e.getGuild() ).getChannel();
         if ( ourChan == null )
             return;
-        if ( ( e instanceof UserVoiceChannelJoinEvent || e instanceof UserVoiceChannelMoveEvent ) && e.getVoiceChannel() == ourChan )
+        JsonObject conf = getConfig( e.getGuild() );
+        if ( !conf.has( "joinSound" ) || !conf.has( "leaveSound" ) || !conf.has( "joinSoundDelay" ) )
+            return;
+        File joinSound = new File( conf.get( "joinSound" ).getAsString() );
+        File leaveSound = new File( conf.get( "leaveSound" ).getAsString() );
+        long delay = conf.get( "joinSoundDelay" ).getAsLong();
+        if ( e instanceof UserVoiceChannelMoveEvent || e instanceof UserVoiceChannelJoinEvent || e instanceof UserVoiceChannelLeaveEvent )
         {
             IUser user;
-            if ( e instanceof UserVoiceChannelJoinEvent )
+            if ( e instanceof UserVoiceChannelMoveEvent )
+                user = ( (UserVoiceChannelMoveEvent) e ).getUser();
+            else if ( e instanceof UserVoiceChannelJoinEvent )
                 user = ( (UserVoiceChannelJoinEvent) e ).getUser();
             else
-                user = ( (UserVoiceChannelMoveEvent) e ).getUser();
+                user = ( (UserVoiceChannelLeaveEvent) e ).getUser();
             if ( user == e.getClient().getOurUser() )
                 return;
-            new Thread( () -> {
+            if ( !( e instanceof UserVoiceChannelLeaveEvent ) && e.getVoiceChannel() == ourChan )
+            {
+                // Join sound.
+                new Thread( () -> {
+                    try
+                    {
+                        Thread.sleep( delay );
+                        AudioPlayer.getAudioPlayerForGuild( e.getGuild() ).queue( joinSound );
+                    }
+                    catch ( InterruptedException | IOException | UnsupportedAudioFileException e1 )
+                    {
+                        e1.printStackTrace();
+                    }
+                } ).start();
+                return;
+            }
+            if ( e instanceof UserVoiceChannelLeaveEvent || e instanceof UserVoiceChannelMoveEvent && e.getVoiceChannel() != ourChan )
+            {
+                // Leave sound.
                 try
                 {
-                    Thread.sleep( delay );
-                    AudioPlayer.getAudioPlayerForGuild( e.getGuild() ).queue( sound );
+                    AudioPlayer.getAudioPlayerForGuild( e.getGuild() ).queue( leaveSound );
                 }
-                catch ( InterruptedException | UnsupportedAudioFileException | IOException e1 )
+                catch ( IOException | UnsupportedAudioFileException e1 )
                 {
                     e1.printStackTrace();
                 }
-            } ).start();
+                return;
+            }
         }
     }
 
