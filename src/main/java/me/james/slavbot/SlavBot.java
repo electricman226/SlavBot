@@ -4,6 +4,7 @@ import com.google.gson.*;
 import java.awt.image.*;
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.atomic.*;
 import java.util.regex.*;
 import javax.imageio.*;
 import javax.sound.sampled.*;
@@ -147,20 +148,20 @@ public class SlavBot extends BaseBot
         if ( imgs.length == 0 )
             throw new IllegalStateException( "No image URLs supplied for viewer!" );
         IMessage msg = chan.sendMessage( imgs[0].url + "\n" + Arrays.toString( imgs[0].tags ) );
-        int[] ind = new int[1]; // uhhh.
+        AtomicInteger count = new AtomicInteger( 0 );
         Discord4Click.addClickEvent( msg, "\u25C0", user -> {
-            if ( ind[0] == 0 )
+            if ( count.get() == 0 )
                 return null;
-            ind[0] = ind[0] - 1;
-            RequestBuffer.request( () -> msg.edit( imgs[ind[0]].url + "\n" + Arrays.toString( imgs[ind[0]].tags ) ) );
+            count.decrementAndGet();
+            RequestBuffer.request( () -> msg.edit( imgs[count.get()].url + "\n" + Arrays.toString( imgs[count.get()].tags ) ) );
             return null;
         }, true );
 
         Discord4Click.addClickEvent( msg, "\u25B6", user -> {
-            if ( ind[0] >= imgs.length - 1 )
+            if ( count.get() >= imgs.length - 1 )
                 return null;
-            ind[0] = ind[0] + 1;
-            RequestBuffer.request( () -> msg.edit( imgs[ind[0]].url + "\n" + Arrays.toString( imgs[ind[0]].tags ) ) );
+            count.incrementAndGet();
+            RequestBuffer.request( () -> msg.edit( imgs[count.get()].url + "\n" + Arrays.toString( imgs[count.get()].tags ) ) );
             return null;
         }, true );
 
@@ -189,6 +190,7 @@ public class SlavBot extends BaseBot
         JsonObject conf = getConfig( e.getGuild() );
         if ( !conf.has( "joinSound" ) || !conf.has( "joinSoundDelay" ) )
             return;
+        File sound = new File( conf.get( "joinSound" ).getAsString() );
         long delay = conf.get( "joinSoundDelay" ).getAsLong();
         IVoiceChannel ourChan = e.getClient().getOurUser().getVoiceStateForGuild( e.getGuild() ).getChannel();
         if ( ourChan == null )
@@ -201,9 +203,6 @@ public class SlavBot extends BaseBot
             else
                 user = ( (UserVoiceChannelMoveEvent) e ).getUser();
             if ( user == e.getClient().getOurUser() )
-                return;
-            File sound = new File( conf.get( "joinSound" ).getAsString() );
-            if ( !sound.exists() )
                 return;
             new Thread( () -> {
                 try
