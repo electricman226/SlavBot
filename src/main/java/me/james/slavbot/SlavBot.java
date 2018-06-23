@@ -217,6 +217,27 @@ public class SlavBot extends BaseBot
                     {
                         Thread.sleep( delay );
                         AudioPlayer.getAudioPlayerForGuild( e.getGuild() ).queue( joinSound );
+                        
+                        int count = e.getVoiceChannel().getConnectedUsers().size();
+                        for ( JsonElement elem : userCountSounds )
+                        {
+                            JsonObject obj = elem.getAsJsonObject();
+                            if ( obj.get( "count" ).getAsInt() == count )
+                            {
+                                File f = new File( obj.get( "sound" ).getAsString() );
+                                if ( !f.exists() )
+                                    continue;
+                                try
+                                {
+                                    AudioPlayer.getAudioPlayerForGuild( e.getGuild() ).queue( f );
+                                }
+                                catch ( IOException | UnsupportedAudioFileException e1 )
+                                {
+                                    e1.printStackTrace();
+                                }
+                                break;
+                            }
+                        }
                     }
                     catch ( InterruptedException | IOException | UnsupportedAudioFileException e1 )
                     {
@@ -224,26 +245,6 @@ public class SlavBot extends BaseBot
                     }
                 } ).start();
 
-                int count = e.getVoiceChannel().getConnectedUsers().size();
-                for ( JsonElement elem : userCountSounds )
-                {
-                    JsonObject obj = elem.getAsJsonObject();
-                    if ( obj.get( "count" ).getAsInt() == count )
-                    {
-                        File f = new File( obj.get( "sound" ).getAsString() );
-                        if ( !f.exists() )
-                            continue;
-                        try
-                        {
-                            AudioPlayer.getAudioPlayerForGuild( e.getGuild() ).queue( f );
-                        }
-                        catch ( IOException | UnsupportedAudioFileException e1 )
-                        {
-                            e1.printStackTrace();
-                        }
-                        break;
-                    }
-                }
                 return;
             }
             if ( e instanceof UserVoiceChannelLeaveEvent || e instanceof UserVoiceChannelMoveEvent && e.getVoiceChannel() != ourChan )
