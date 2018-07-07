@@ -17,7 +17,7 @@ public class MuteAllCommand extends OperatorCommand
             return null;
         boolean muteStatus = !mutedServers.getOrDefault( chan.getGuild(), false );
         for ( IUser chanUser : vc.getConnectedUsers() )
-            if ( chanUser != user && chanUser != SlavBot.BOT.getBot().getApplicationOwner() && chanUser.getLongID() != vc.getGuild().getOwnerLongID() || !chanUser.getRolesForGuild( chan.getGuild() ).contains( OperatorCommand.getOperatorRole( chan.getGuild() ) ) )
+            if ( chanUser != user && chanUser != SlavBot.BOT.getBot().getApplicationOwner() && chanUser.getLongID() != vc.getGuild().getOwnerLongID() && !chanUser.getRolesForGuild( chan.getGuild() ).contains( OperatorCommand.getOperatorRole( chan.getGuild() ) ) )
                 RequestBuffer.request( () -> chan.getGuild().setMuteUser( chanUser, muteStatus ) );
         mutedServers.put( chan.getGuild(), muteStatus );
         return "Toggled voice mute. (" + muteStatus + ")";
