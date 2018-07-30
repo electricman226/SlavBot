@@ -217,7 +217,7 @@ public class SlavBot extends BaseBot
                     {
                         Thread.sleep( delay );
                         AudioPlayer.getAudioPlayerForGuild( e.getGuild() ).queue( joinSound );
-                        
+
                         int count = e.getVoiceChannel().getConnectedUsers().size();
                         for ( JsonElement elem : userCountSounds )
                         {
@@ -288,8 +288,9 @@ public class SlavBot extends BaseBot
         Command.registerCommand( ".deafenall", new DeafenAllCommand() );
         Command.registerCommand( ".mutechan", new TempMuteChannelCommand() );
         Command.registerCommand( ".sendmsg", new SendMessageCommand() );
-
+        
         registerAnchors();
         registerSounds();
+        new RuntimeCompiler().start();
     }
 }
