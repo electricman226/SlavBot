@@ -2,8 +2,8 @@ package me.james.slavbot;
 
 import java.io.*;
 import java.nio.file.*;
-import java.util.*;
 import net.openhft.compiler.*;
+import org.jline.reader.*;
 
 public class RuntimeCompiler extends Thread
 {
@@ -25,24 +25,30 @@ public class RuntimeCompiler extends Thread
     @Override
     public void run()
     {
-        Scanner scan = new Scanner( System.in );
-        String line;
-        while ( true )
+        try
         {
-            line = scan.nextLine();
-
-            long timestamp = System.currentTimeMillis();
-            System.out.println( "Compiling... (class " + String.format( CLASSNAME_TEMPLATE, timestamp ) + ")" );
-            try
+            LineReader reader = LineReaderBuilder.builder().build();
+            String line;
+            while ( true )
             {
-                Class compiled = CompilerUtils.CACHED_COMPILER.loadFromJava( String.format( CLASSNAME_TEMPLATE, timestamp ), String.format( CODE_TEMPLATE, String.format( CLASSNAME_TEMPLATE, timestamp ), line ) );
-                System.out.println( "Executing..." );
-                MethodInvocationUtils.invokeStaticMethod( compiled, "run", SlavBot.BOT.getBot() );
+                line = reader.readLine();
+                long timestamp = System.currentTimeMillis();
+                System.out.println( "Compiling... (class " + String.format( CLASSNAME_TEMPLATE, timestamp ) + ")" );
+                try
+                {
+                    Class compiled = CompilerUtils.CACHED_COMPILER.loadFromJava( String.format( CLASSNAME_TEMPLATE, timestamp ), String.format( CODE_TEMPLATE, String.format( CLASSNAME_TEMPLATE, timestamp ), line ) );
+                    System.out.println( "Executing..." );
+                    MethodInvocationUtils.invokeStaticMethod( compiled, "run", SlavBot.BOT.getBot() );
+                }
+                catch ( ClassNotFoundException e )
+                {
+                    System.out.println( "Compilation failed!" );
+                }
             }
-            catch ( ClassNotFoundException e )
-            {
-                System.out.println( "Compilation failed!" );
-            }
+        }
+        catch ( UserInterruptException | EndOfFileException e )
+        {
+            //
         }
     }
 }
