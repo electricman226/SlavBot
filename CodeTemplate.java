@@ -15,7 +15,7 @@ public class %s
         }
         catch(Exception internal_exception)
         {
-            System.err.println(String.format("THREW INTERNAL EXCEPTION: %s (%s)", internal_exception.getClass().getSimpleName(), internal_exception.getMessage()));
+            System.err.println("THREW INTERNAL EXCEPTION: " + internal_exception.getClass().getSimpleName() + " (" + internal_exception.getMessage() + ")");
         }
     }
 }
