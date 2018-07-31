@@ -9,6 +9,13 @@ public class %s
 {   
     public static void run( IDiscordClient client )
     {
-        %s
+        try
+        {
+            %s
+        }
+        catch(Exception internal_exception)
+        {
+            System.err.println(String.format("THREW INTERNAL EXCEPTION: %s (%s)", internal_exception.getClass().getSimpleName(), internal_exception.getMessage());
+        }
     }
 }
