@@ -116,8 +116,6 @@ public class GuildLog
             roles.add( roleObj );
         }
         msgObj.add( "current_roles", roles );
-        JsonArray overallPermissions = new JsonArray();
-        msgObj.add( "overall_permissions", overallPermissions );
         msgObj.addProperty( "overall_permissions_bits", Permissions.generatePermissionsNumber( msg.getAuthor().getPermissionsForGuild( msg.getGuild() ) ) );
 
         messages.add( msgObj );
