@@ -44,17 +44,54 @@ public class GuildLog
 
     private void init()
     {
+        init( true );
+    }
+
+    private void init( boolean repop )
+    {
         log = new JsonObject();
         JsonObject guild_info = new JsonObject();
         guild_info.addProperty( "name", guild.getName() );
         // TODO: Add more guild specific info.
         // FIXME: What if the name changes? What about other guild information?
         log.add( "guild_info", guild_info );
+        log.add( "channels", new JsonArray() );
         log.add( "messages", new JsonArray() );
+        for ( IChannel chan : guild.getChannels() )
+            logChannel( chan );
+        if ( repop )
+            forceRepopulate();
         save();
     }
 
+    public void logChannel( IChannel chan )
+    {
+        logChannel( chan, true );
+    }
+
+    public void logChannel( IChannel chan, boolean save )
+    {
+        JsonArray channels = log.get( "channels" ).getAsJsonArray();
+        JsonObject chanObj = new JsonObject();
+
+        chanObj.addProperty( "id", chan.getStringID() );
+        chanObj.addProperty( "name", chan.getName() );
+        chanObj.addProperty( "permission_bits", Permissions.generatePermissionsNumber( chan.getModifiedPermissions( SlavBot.BOT.getBot().getOurUser() ) ) );
+        chanObj.addProperty( "topic", chan.getTopic() );
+        if ( chan.getCategory() != null )
+            chanObj.addProperty( "parent", chan.getCategory().getName() );
+
+        channels.add( chanObj );
+        if ( save )
+            save();
+    }
+
     public void logMessage( IMessage msg )
+    {
+        logMessage( msg, true );
+    }
+
+    public void logMessage( IMessage msg, boolean save )
     {
         JsonArray messages = log.get( "messages" ).getAsJsonArray();
 
@@ -84,7 +121,8 @@ public class GuildLog
         msgObj.addProperty( "overall_permissions_bits", Permissions.generatePermissionsNumber( msg.getAuthor().getPermissionsForGuild( msg.getGuild() ) ) );
 
         messages.add( msgObj );
-        save();
+        if ( save )
+            save();
     }
 
     private void save()
@@ -99,5 +137,20 @@ public class GuildLog
         {
             e.printStackTrace();
         }
+    }
+
+    // This will repopulate the entire file. Note that this WILL construct the ENTIRE FILE into memory, due to loading all messages.
+    // This uses an expensive call to IChannel#getFullMessageHistory()
+    public void forceRepopulate()
+    {
+        SlavBot.BOT.getLogger().info( "Forcing repopulation for guild log " + guild.getName() + " (" + guild.getStringID() + ")" );
+        init( false ); // WILL OVERRIDE FILE.
+        for ( IChannel chan : guild.getChannels() )
+            if ( chan.getModifiedPermissions( SlavBot.BOT.getBot().getOurUser() ).contains( Permissions.READ_MESSAGES ) )
+            {
+                for ( IMessage msg : chan.getFullMessageHistory() ) // this is VERY expensive.
+                    logMessage( msg, false );
+            }
+        save();
     }
 }

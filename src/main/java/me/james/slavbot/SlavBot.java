@@ -15,6 +15,7 @@ import me.james.slavbot.commands.*;
 import me.james.slavbot.commands.operator.*;
 import org.imgscalr.*;
 import sx.blah.discord.api.events.*;
+import sx.blah.discord.handle.impl.events.guild.channel.*;
 import sx.blah.discord.handle.impl.events.guild.channel.message.*;
 import sx.blah.discord.handle.impl.events.guild.member.*;
 import sx.blah.discord.handle.impl.events.guild.voice.*;
@@ -169,6 +170,12 @@ public class SlavBot extends BaseBot
             RequestBuffer.request( msg::delete );
             return null;
         } );
+    }
+
+    @EventSubscriber
+    public void onCreateChannel( ChannelCreateEvent e )
+    {
+        GuildLog.getLogForGuild( e.getGuild() ).logChannel( e.getChannel() );
     }
 
     @EventSubscriber

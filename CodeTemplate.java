@@ -4,6 +4,7 @@ import sx.blah.discord.util.*;
 import java.util.*;
 import java.io.*;
 import java.lang.*;
+import static me.james.slavbot.RuntimeCompilerHelpers.*;
 
 public class %s
 {   
