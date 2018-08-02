@@ -266,6 +266,9 @@ public class SlavBot extends BaseBot
     @EventSubscriber
     public void onMessage( MessageEvent e )
     {
+        if ( e instanceof MessageReceivedEvent && !e.getChannel().isPrivate() )
+            GuildLog.getLogForGuild( e.getGuild() ).logMessage( e.getMessage() );
+
         if ( e instanceof MessageSendEvent || e instanceof MessageReceivedEvent )
             if ( !e.getChannel().isPrivate() && SlavImageCommand.hasImage( e.getMessage() ) )
                 SlavImageCommand.lastMsgs.put( e.getChannel(), e.getMessage() );
@@ -288,9 +291,13 @@ public class SlavBot extends BaseBot
         Command.registerCommand( ".deafenall", new DeafenAllCommand() );
         Command.registerCommand( ".mutechan", new TempMuteChannelCommand() );
         Command.registerCommand( ".sendmsg", new SendMessageCommand() );
-        
+
         registerAnchors();
         registerSounds();
+
+        for ( IGuild g : getBot().getGuilds() )
+            GuildLog.create( g );
+
         new RuntimeCompiler().start();
     }
 }
