@@ -2,19 +2,29 @@ package me.james.slavbot;
 
 import com.google.gson.*;
 import java.io.*;
+import java.net.*;
 import java.nio.file.*;
 import java.util.*;
+import java.util.regex.*;
+import org.apache.commons.io.*;
+import org.apache.http.*;
+import org.apache.http.client.*;
+import org.apache.http.client.methods.*;
+import org.apache.http.impl.client.*;
 import sx.blah.discord.handle.obj.*;
 
 public class GuildLog
 {
     public static final File LOG_DIRECTORY = new File( "guildlogs" );
+    public static final File FILE_CACHE_DIRECTORY = new File( LOG_DIRECTORY.getPath() + "//files" );
     public static HashMap< IGuild, GuildLog > LOGS = new HashMap<>();
 
     static
     {
         if ( !LOG_DIRECTORY.exists() )
             LOG_DIRECTORY.mkdir();
+        if ( !FILE_CACHE_DIRECTORY.exists() )
+            FILE_CACHE_DIRECTORY.mkdir();
     }
 
     public File f;
@@ -28,6 +38,19 @@ public class GuildLog
         if ( !f.exists() )
             init();
         log = SlavBot.fileToJSON( f );
+    }
+
+    public static List< String > extractUrls( String text )
+    {
+        List< String > containedUrls = new ArrayList<>();
+        String urlRegex = "((https?|ftp|gopher|telnet|file):((//)|(\\\\))+[\\w\\d:#@%/;$()~_?\\+-=\\\\\\.&]*)";
+        Pattern pattern = Pattern.compile( urlRegex, Pattern.CASE_INSENSITIVE );
+        Matcher urlMatcher = pattern.matcher( text );
+
+        while ( urlMatcher.find() )
+            containedUrls.add( text.substring( urlMatcher.start( 0 ), urlMatcher.end( 0 ) ) );
+
+        return containedUrls;
     }
 
     public static GuildLog create( IGuild g )
@@ -118,9 +141,43 @@ public class GuildLog
         msgObj.add( "current_roles", roles );
         msgObj.addProperty( "overall_permissions_bits", Permissions.generatePermissionsNumber( msg.getAuthor().getPermissionsForGuild( msg.getGuild() ) ) );
 
+        if ( msg.getAttachments().size() > 0 )
+        {
+            JsonArray attachments = new JsonArray();
+
+            for ( IMessage.Attachment a : msg.getAttachments() )
+            {
+                JsonObject aObj = new JsonObject();
+                try
+                {
+                    // We have to do it like this instead of using IOUtils#toByteArray(URL) because Discord gay lmao.
+                    logFile( new URL( a.getUrl() ), msg.getStringID() + "_" + a.getFilename() );
+                    aObj.addProperty( "id", a.getStringID() );
+                    aObj.addProperty( "url", a.getUrl() );
+                    aObj.addProperty( "name", a.getFilename() );
+
+                    aObj.addProperty( "_archive_time", System.currentTimeMillis() / 1000 );
+                    attachments.add( aObj );
+                }
+                catch ( IOException e )
+                {
+                    e.printStackTrace();
+                }
+            }
+            msgObj.add( "attachments", attachments );
+        }
+
         messages.add( msgObj );
         if ( save )
             save();
+    }
+
+    public void logFile( URL url, String p ) throws IOException
+    {
+        HttpGet req = new HttpGet( url.toString() );
+        HttpClient client = HttpClients.custom().setUserAgent( "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:15.0) Gecko/20100101 Firefox/15.0.1" ).build();
+        HttpResponse resp = client.execute( req );
+        Files.write( Paths.get( FILE_CACHE_DIRECTORY.getPath() + "//" + p ), IOUtils.toByteArray( resp.getEntity().getContent() ), StandardOpenOption.CREATE );
     }
 
     private void save()
