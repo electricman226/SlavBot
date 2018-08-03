@@ -8,7 +8,6 @@ import java.util.*;
 import java.util.regex.*;
 import org.apache.commons.io.*;
 import org.apache.http.*;
-import org.apache.http.client.*;
 import org.apache.http.client.methods.*;
 import org.apache.http.impl.client.*;
 import sx.blah.discord.handle.obj.*;
@@ -17,6 +16,8 @@ public class GuildLog
 {
     public static final File LOG_DIRECTORY = new File( "guildlogs" );
     public static final File FILE_CACHE_DIRECTORY = new File( LOG_DIRECTORY.getPath() + "//files" );
+    public static final int MAX_DOWNLOAD_THREADS = 20; // TODO: This should be configurable.
+    public static ArrayList< Thread > downloadThreads = new ArrayList<>();
     public static HashMap< IGuild, GuildLog > LOGS = new HashMap<>();
 
     static
@@ -151,7 +152,25 @@ public class GuildLog
                 try
                 {
                     // We have to do it like this instead of using IOUtils#toByteArray(URL) because Discord gay lmao.
-                    logFile( new URL( a.getUrl() ), msg.getStringID() + "_" + a.getFilename() );
+                    while ( downloadThreads.size() >= MAX_DOWNLOAD_THREADS )
+                        Thread.sleep( 0 );
+                    Thread dlThread = new Thread( () -> {
+                        try
+                        {
+                            downloadFile( new URL( a.getUrl() ), msg.getStringID() + "_" + a.getFilename() );
+                        }
+                        catch ( IOException e )
+                        {
+                            SlavBot.BOT.getLogger().warning( "Download thread failed! (" + Thread.currentThread().getName() + ")" );
+                            e.printStackTrace();
+                        }
+                        finally
+                        {
+                            downloadThreads.remove( Thread.currentThread() );
+                        }
+                    }, "DownloadThread-" + a.getLongID() );
+                    downloadThreads.add( dlThread );
+                    dlThread.start();
                     aObj.addProperty( "id", a.getStringID() );
                     aObj.addProperty( "url", a.getUrl() );
                     aObj.addProperty( "name", a.getFilename() );
@@ -159,7 +178,7 @@ public class GuildLog
                     aObj.addProperty( "_archive_time", System.currentTimeMillis() / 1000 );
                     attachments.add( aObj );
                 }
-                catch ( IOException e )
+                catch ( InterruptedException e )
                 {
                     e.printStackTrace();
                 }
@@ -172,12 +191,19 @@ public class GuildLog
             save();
     }
 
-    public void logFile( URL url, String p ) throws IOException
+    public void downloadFile( URL url, String p ) throws IOException
     {
-        HttpGet req = new HttpGet( url.toString() );
-        HttpClient client = HttpClients.custom().setUserAgent( "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:15.0) Gecko/20100101 Firefox/15.0.1" ).build();
-        HttpResponse resp = client.execute( req );
-        Files.write( Paths.get( FILE_CACHE_DIRECTORY.getPath() + "//" + p ), IOUtils.toByteArray( resp.getEntity().getContent() ), StandardOpenOption.CREATE );
+        CloseableHttpClient client = HttpClients.custom().setUserAgent( "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:15.0) Gecko/20100101 Firefox/15.0.1" ).build();
+        try
+        {
+            HttpGet req = new HttpGet( url.toString() );
+            HttpResponse resp = client.execute( req );
+            Files.write( Paths.get( FILE_CACHE_DIRECTORY.getPath() + "//" + p ), IOUtils.toByteArray( resp.getEntity().getContent() ), StandardOpenOption.CREATE );
+        }
+        finally
+        {
+            client.close();
+        }
     }
 
     private void save()
