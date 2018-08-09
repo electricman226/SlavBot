@@ -3,6 +3,7 @@ package me.james.slavbot;
 import com.google.gson.*;
 import java.io.*;
 import java.net.*;
+import java.nio.charset.*;
 import java.nio.file.*;
 import java.util.*;
 import java.util.regex.*;
@@ -212,7 +213,17 @@ public class GuildLog
         {
             if ( !f.exists() )
                 f.createNewFile();
-            Files.write( f.toPath(), SlavBot.BOT.getGSON().toJson( log.getAsJsonObject() ).getBytes(), StandardOpenOption.WRITE );
+            OutputStreamWriter w = null;
+            try
+            {
+                w = new OutputStreamWriter( new FileOutputStream( f ), StandardCharsets.UTF_8 );
+                w.write( SlavBot.BOT.getGSON().toJson( log.getAsJsonObject() ) );
+            }
+            finally
+            {
+                if ( w != null )
+                    w.close();
+            }
         }
         catch ( IOException e )
         {
