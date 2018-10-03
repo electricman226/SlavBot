@@ -208,7 +208,7 @@ public class SlavBot extends BaseBot
         for ( IRole r : e.getNewRoles() )
             if ( !e.getOldRoles().contains( r ) )
                 builder.append( r.getName() ).append( "/" ).append( r.getStringID() ).append( ", " );
-        builder = new StringBuilder( builder.subSequence( 0, builder.length() - 2 ) ).append( "\n\tRemoved: " );
+        builder.append( "\n\tRemoved: " );
 
         for ( IRole r : e.getOldRoles() )
             if ( !e.getNewRoles().contains( r ) )
