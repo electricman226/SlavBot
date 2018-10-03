@@ -18,6 +18,7 @@ import sx.blah.discord.api.events.*;
 import sx.blah.discord.handle.impl.events.guild.channel.*;
 import sx.blah.discord.handle.impl.events.guild.channel.message.*;
 import sx.blah.discord.handle.impl.events.guild.member.*;
+import sx.blah.discord.handle.impl.events.guild.role.*;
 import sx.blah.discord.handle.impl.events.guild.voice.*;
 import sx.blah.discord.handle.impl.events.guild.voice.user.*;
 import sx.blah.discord.handle.obj.*;
@@ -189,6 +190,30 @@ public class SlavBot extends BaseBot
                 roles.add( e.getGuild().getRoleByID( elem.getAsLong() ) );
             e.getGuild().editUserRoles( e.getUser(), roles.toArray( new IRole[0] ) );
         }
+    }
+
+    @EventSubscriber
+    public void onRoleEvent( RoleEvent e )
+    {
+        if ( e instanceof RoleCreateEvent )
+            getLogger().info( "Role " + e.getRole().getName() + "/" + e.getRole().getStringID() + " created." );
+        if ( e instanceof RoleUpdateEvent )
+            getLogger().info( "Role " + ( (RoleUpdateEvent) e ).getOldRole().getName() + "/" + ( (RoleUpdateEvent) e ).getOldRole().getStringID() + " (now " + ( (RoleUpdateEvent) e ).getNewRole().getName() + "/" + ( (RoleUpdateEvent) e ).getNewRole().getStringID() + ") updated." );
+    }
+
+    @EventSubscriber
+    public void onUserRoleEvent( UserRoleUpdateEvent e )
+    {
+        StringBuilder builder = new StringBuilder( "User " + e.getUser().getName() + "/" + e.getUser().getStringID() + " roles updated:\n\tAdded: " );
+        for ( IRole r : e.getNewRoles() )
+            if ( !e.getOldRoles().contains( r ) )
+                builder.append( r.getName() ).append( "/" ).append( r.getStringID() ).append( ", " );
+        builder = new StringBuilder( builder.subSequence( 0, builder.length() - 2 ) ).append( "\n\tRemoved: " );
+
+        for ( IRole r : e.getOldRoles() )
+            if ( !e.getNewRoles().contains( r ) )
+                builder.append( r.getName() ).append( "/" ).append( r.getStringID() ).append( ", " );
+        getLogger().info( builder.toString() );
     }
 
     @EventSubscriber
