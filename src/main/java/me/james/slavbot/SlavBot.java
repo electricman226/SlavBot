@@ -196,15 +196,15 @@ public class SlavBot extends BaseBot
     public void onRoleEvent( RoleEvent e )
     {
         if ( e instanceof RoleCreateEvent )
-            getLogger().info( "Role " + e.getRole().getName() + "/" + e.getRole().getStringID() + " created." );
+            getLogger().info( e.getGuild().getName() + "/" + e.getGuild().getStringID() + ": Role " + e.getRole().getName() + "/" + e.getRole().getStringID() + " created." );
         if ( e instanceof RoleUpdateEvent )
-            getLogger().info( "Role " + ( (RoleUpdateEvent) e ).getOldRole().getName() + "/" + ( (RoleUpdateEvent) e ).getOldRole().getStringID() + " (now " + ( (RoleUpdateEvent) e ).getNewRole().getName() + "/" + ( (RoleUpdateEvent) e ).getNewRole().getStringID() + ") updated." );
+            getLogger().info( e.getGuild().getName() + "/" + e.getGuild().getStringID() + ": Role " + ( (RoleUpdateEvent) e ).getOldRole().getName() + "/" + ( (RoleUpdateEvent) e ).getOldRole().getStringID() + " (now " + ( (RoleUpdateEvent) e ).getNewRole().getName() + "/" + ( (RoleUpdateEvent) e ).getNewRole().getStringID() + ") updated." );
     }
 
     @EventSubscriber
     public void onUserRoleEvent( UserRoleUpdateEvent e )
     {
-        StringBuilder builder = new StringBuilder( "User " + e.getUser().getName() + "/" + e.getUser().getStringID() + " roles updated:\n\tAdded: " );
+        StringBuilder builder = new StringBuilder( e.getGuild().getName() + "/" + e.getGuild().getStringID() + ": User " + e.getUser().getName() + "/" + e.getUser().getStringID() + " roles updated:\n\tAdded: " );
         for ( IRole r : e.getNewRoles() )
             if ( !e.getOldRoles().contains( r ) )
                 builder.append( r.getName() ).append( "/" ).append( r.getStringID() ).append( ", " );
